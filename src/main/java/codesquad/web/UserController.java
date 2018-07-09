@@ -1,6 +1,8 @@
 package codesquad.web;
 
 import codesquad.domain.User;
+import codesquad.domain.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -9,11 +11,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Controller
 public class UserController {
-    private List<User> users = new ArrayList<>();
+    private Map<String, User> users = new HashMap<String, User>();
+    
+    @Autowired
+    private UserRepository userRepository;
 
 //    @PostMapping("/users")
 //    public String create(String userId,
@@ -37,20 +44,26 @@ public class UserController {
     // 한가지 일만 하도록 메소드 분리
     @PostMapping("/users")
     public String create(User user){
-        users.add(user);
+        users.put(user.getUserId(), user);
+        //userRepository.save(user);
         return "redirect:/users";
     }
 
     @GetMapping("/users")
     public String create(Model model){
-        model.addAttribute("users", users);
+        model.addAttribute("users", users.values());
         return "/user/list";
     }
 
-    @GetMapping("/users/{index}")
-    public String show(@PathVariable int index, Model model) {
-        model.addAttribute("user", users.get(index));
+    @GetMapping("/users/{userId}")
+    public String show(@PathVariable String userId, Model model) {
+        model.addAttribute("user", users.get(userId));
         return "/user/profile";
+    }
+    @GetMapping("/users/{userId}/form")
+    public String update(@PathVariable String userId, Model model) {
+        model.addAttribute("user", users.get(userId));
+        return "/user/updateForm";
     }
 
     // 예전버전에서의 사용법

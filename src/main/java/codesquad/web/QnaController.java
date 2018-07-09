@@ -28,11 +28,6 @@ public class QnaController {
 
     }
 
-    @GetMapping("/questions/form")
-    public String form(){
-        return "qna/form";
-    }
-
     @GetMapping("/questions/{index}")
     public String view(@PathVariable int index, Model model) {
         model.addAttribute("question",questions.get(index));
