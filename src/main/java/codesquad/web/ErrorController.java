@@ -7,11 +7,11 @@ import org.springframework.web.bind.annotation.PathVariable;
 
 @Controller
 public class ErrorController {
-    
+
     @GetMapping("/error/{errorcase}")
-    public String error(@PathVariable String errorcase){
-        
+    public String error(@PathVariable String errorcase) {
+
         return null;
     }
-    
+
 }

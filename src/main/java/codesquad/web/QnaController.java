@@ -1,11 +1,12 @@
 package codesquad.web;
 
 import codesquad.domain.Question;
+import codesquad.domain.QuestionRepository;
+import jdk.nashorn.internal.runtime.QuotedStringTokenizer;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -13,39 +14,51 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Controller
+@RequestMapping("/questions")
 public class QnaController {
     public static List<Question> questions = new ArrayList<>();
 
-    @PostMapping("/questions")
+    @Autowired
+    QuestionRepository questionRepository;
+
+    @PostMapping
     public String create(Question question) {
-//
-        question.setWriteTime(currentTime());
-
-        System.out.println(question.getTitle());
-
-        if(addQuestion(question))
+        if (addQuestion(question))
             return "redirect:/";
 
-        return "redirect:/error"+"/{}";
-
+        return "redirect:/error" + "/{}";
     }
 
-    @GetMapping("/questions/{index}")
-    public String view(@PathVariable int index, Model model) {
-        model.addAttribute("question",questions.get(index-1));
+    @GetMapping("/{id}")
+    public String view(@PathVariable long id, Model model) {
+        model.addAttribute("question", questionRepository.findById(id).get());
         return "/qna/show";
     }
 
-    private boolean addQuestion(Question question){
+    @GetMapping("/{id}/form")
+    public String viewForUpdate(@PathVariable long id, Model model) {
+        model.addAttribute("question", questionRepository.findById(id).get());
+        return "/qna/updateForm";
+    }
+
+    @PutMapping("/{id}")
+    public String updateQuestion(@PathVariable long id, Question question) {
+        Question targetQuestion = questionRepository.findById(id).get();
+        question.setId(targetQuestion.getId());
+        question.setWriteTime(targetQuestion.getWriteTime());
+        questionRepository.save(question);
+        return "redirect:/questions/{id}";
+    }
+
+    @DeleteMapping("/{id}")
+    public String deleteQuestion(@PathVariable long id) {
+        questionRepository.deleteById(id);
+        return "redirect:/";
+    }
+
+    private boolean addQuestion(Question question) {
+        questionRepository.save(question);
         questions.add(question);
         return true;
     }
-
-    private String currentTime(){
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        String time =  dtf.format(LocalDateTime.now());
-        System.out.println("make time : " + time);
-        return time;
-    }
-
 }

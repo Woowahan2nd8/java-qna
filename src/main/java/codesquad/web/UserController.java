@@ -8,6 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.ArrayList;
@@ -16,13 +17,14 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
+@RequestMapping("/users")
 public class UserController {
-    private Map<String, User> users = new HashMap<String, User>();
+    //private Map<String, User> users = new HashMap<String, User>();
     
     @Autowired
     private UserRepository userRepository;
 
-//    @PostMapping("/users")
+//    @PostMapping("")
 //    public String create(String userId,
 //                         String password,
 //                         String name,
@@ -34,7 +36,7 @@ public class UserController {
 //    }
 
 //    //Setter 메소드 만든 후 개선
-//    @PostMapping("/users")
+//    @PostMapping("")
 //    public String create(User user, Model model){
 //        users.add(user);
 //        model.addAttribute("users", users);
@@ -42,28 +44,34 @@ public class UserController {
 //    }
 
     // 한가지 일만 하도록 메소드 분리
-    @PostMapping("/users")
+    @PostMapping
     public String create(User user){
-        users.put(user.getUserId(), user);
-        //userRepository.save(user);
+        userRepository.save(user);
         return "redirect:/users";
     }
 
-    @GetMapping("/users")
-    public String create(Model model){
-        model.addAttribute("users", users.values());
+    @GetMapping
+    public String list(Model model){
+        model.addAttribute("users", userRepository.findAll());
         return "/user/list";
     }
 
-    @GetMapping("/users/{userId}")
+    @GetMapping("/{userId}")
     public String show(@PathVariable String userId, Model model) {
-        model.addAttribute("user", users.get(userId));
+        model.addAttribute("user", userRepository.findByUserId(userId));
         return "/user/profile";
     }
-    @GetMapping("/users/{userId}/form")
+    @GetMapping("/{userId}/form")
     public String update(@PathVariable String userId, Model model) {
-        model.addAttribute("user", users.get(userId));
+        model.addAttribute("user", userRepository.findByUserId(userId));
         return "/user/updateForm";
+    }
+    @PostMapping("/{userId}/form")
+    public String updateUser(User user) {
+        User targetUser = userRepository.findByUserId(user.getUserId());
+        user.setId(targetUser.getId());
+        userRepository.save(user);
+        return "redirect:/users";
     }
 
     // 예전버전에서의 사용법
