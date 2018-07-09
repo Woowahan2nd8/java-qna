@@ -21,6 +21,8 @@ public class QnaController {
 //
         question.setWriteTime(currentTime());
 
+        System.out.println(question.getTitle());
+
         if(addQuestion(question))
             return "redirect:/";
 
@@ -30,7 +32,7 @@ public class QnaController {
 
     @GetMapping("/questions/{index}")
     public String view(@PathVariable int index, Model model) {
-        model.addAttribute("question",questions.get(index));
+        model.addAttribute("question",questions.get(index-1));
         return "/qna/show";
     }
 
