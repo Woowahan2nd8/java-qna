@@ -6,30 +6,34 @@ import java.time.format.DateTimeFormatter;
 
 @Entity
 public class Question {
+    private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String writer;
-    @Column(nullable = false)
+    @ManyToOne
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_user_id"), nullable = false)
+    private User writer;
+
+    @Column(nullable = false, length = 30, updatable = false)
     private String title;
+
+    @Lob
     @Column(nullable = false)
     private String contents;
 
+    @Column(nullable = false, length = 30)
     private String writeTime;
 
-
     public Question() {
-        DateTimeFormatter dtf = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-        this.writeTime = dtf.format(LocalDateTime.now());
+        this.writeTime = calculateWriteTime();
     }
 
-    public Question(String writer, String title, String contents, String writeTime) {
+    public Question(User writer, String title, String contents) {
         this.writer = writer;
         this.title = title;
         this.contents = contents;
-        this.writeTime = writeTime;
+        this.writeTime = calculateWriteTime();
     }
 
     public Long getId() {
@@ -40,12 +44,8 @@ public class Question {
         this.id = id;
     }
 
-    public String getWriter() {
+    public User getWriter() {
         return writer;
-    }
-
-    public void setWriter(String writer) {
-        this.writer = writer;
     }
 
     public String getTitle() {
@@ -82,4 +82,19 @@ public class Question {
                 ", writeTime='" + writeTime + '\'' +
                 '}';
     }
+
+    public void updateData(Question question) {
+        this.contents = question.contents;
+        this.title = question.title;
+    }
+
+    public boolean unEqualWriter(long id) {
+        return !writer.getId().equals(id);
+    }
+
+    private String calculateWriteTime() {
+        DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_FORMAT);
+        return dtf.format(LocalDateTime.now());
+    }
+
 }
