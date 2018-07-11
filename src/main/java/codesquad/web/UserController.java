@@ -3,7 +3,7 @@ package codesquad.web;
 import codesquad.domain.*;
 import codesquad.service.CustomErrorMessage;
 import codesquad.service.CustomException;
-import codesquad.service.IUserService;
+import codesquad.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -17,7 +17,7 @@ public class UserController {
     static final String SESSION_KEY = "sessionedUser";
 
     @Autowired
-    IUserService userService;
+    UserService userService;
 
     @PostMapping
     public String create(User user) {
@@ -57,10 +57,7 @@ public class UserController {
 
     @PostMapping("/login")
     public String login(String userId, String password, HttpSession session) {
-        User user = userService.getUserByUserId(userId);
-        if (!user.matchPassword(password)) {
-            throw new CustomException(CustomErrorMessage.LOGIN_FAILED);
-        }
+        User user = userService.getUserByUserIdAndPassword(userId, password);
         session.setAttribute(SESSION_KEY, user);
         return "redirect:/";
     }

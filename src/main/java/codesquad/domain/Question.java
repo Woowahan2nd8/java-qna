@@ -1,8 +1,12 @@
 package codesquad.domain;
 
+import codesquad.service.CustomErrorMessage;
+import codesquad.service.CustomException;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.*;
 
 @Entity
 public class Question {
@@ -25,11 +29,17 @@ public class Question {
     @Column(nullable = false, length = 30)
     private String writeTime;
 
+    @OneToMany(mappedBy="question", cascade = CascadeType.MERGE)
+    @PrimaryKeyJoinColumn
+    private List<Answer> answers;
+
+
     public Question() {
-        this.writeTime = calculateWriteTime();
+        this(null,"defaultTitle","defaultContents");
     }
 
     public Question(User writer, String title, String contents) {
+        checkFields(title, contents);
         this.writer = writer;
         this.title = title;
         this.contents = contents;
@@ -72,20 +82,32 @@ public class Question {
         this.writeTime = writeTime;
     }
 
+    public List<Answer> getAnswers() {
+        return answers;
+    }
+
+    public void setAnswers(List<Answer> answers) {
+        this.answers = answers;
+    }
+
     @Override
     public String toString() {
         return "Question{" +
                 "id=" + id +
-                ", writer='" + writer + '\'' +
+                ", writer=" + writer +
                 ", title='" + title + '\'' +
                 ", contents='" + contents + '\'' +
                 ", writeTime='" + writeTime + '\'' +
+                ", answers=" + answers +
                 '}';
     }
 
     public void updateData(Question question) {
+        if(!writer.matchUserId(question.writer))
+            throw new CustomException(CustomErrorMessage.NOT_AUTHORIZED);
         this.contents = question.contents;
         this.title = question.title;
+        this.answers = question.answers;
     }
 
     public boolean unEqualWriter(long id) {
@@ -95,6 +117,27 @@ public class Question {
     private String calculateWriteTime() {
         DateTimeFormatter dtf = DateTimeFormatter.ofPattern(DATE_FORMAT);
         return dtf.format(LocalDateTime.now());
+    }
+
+    public static void checkFields(String title, String contents){
+        if(contents == null || title == null || contents.equals("") || title.equals("")) {
+            throw new CustomException(CustomErrorMessage.BLANK);
+        }
+    }
+
+    public void addAnswer(Answer answer){
+        this.answers.add(answer);
+        answer.setQuestion(this);
+    }
+
+    public void deleteAnswer(long answerId){
+
+
+        Answer answer = answers.stream().filter(a -> a.isMatchedId(answerId)).findFirst().get();
+        //answer.setWriter(null);
+        answer.setQuestion(null);
+        answers.removeIf(a -> a.isMatchedId(answerId));
+
     }
 
 }

@@ -1,8 +1,10 @@
 package codesquad.domain;
 
+import codesquad.service.CustomErrorMessage;
 import codesquad.service.CustomException;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 public class User {
@@ -22,7 +24,6 @@ public class User {
     public User() {
 
     }
-
     public Long getId() {
         return id;
     }
@@ -75,8 +76,11 @@ public class User {
     }
 
     public void updateData(User user) {
+        if (!this.equals(user)) {
+            throw new CustomException(CustomErrorMessage.NOT_AUTHORIZED);
+        }
         if (!matchPassword(user)) {
-            throw new CustomException("비밀번호가 일치하지 않습니다.");
+            throw new CustomException(CustomErrorMessage.NOT_AUTHORIZED);
         }
         this.name = user.name;
         this.email = user.email;
@@ -91,7 +95,25 @@ public class User {
     }
 
     public boolean matchUserId(User user) {
+        if(user == null || user.userId == null || userId == null) {
+            System.out.println(user);
+            System.out.println(this);
+            return false;
+        }
         return userId.equals(user.userId);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(userId, user.userId);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(userId);
+    }
 }

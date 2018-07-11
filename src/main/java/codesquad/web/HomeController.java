@@ -1,7 +1,6 @@
 package codesquad.web;
 
-import codesquad.repository.QuestionRepository;
-import codesquad.service.IQuestionService;
+import codesquad.service.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -14,7 +13,7 @@ import javax.servlet.http.HttpSession;
 public class HomeController {
 
     @Autowired
-    IQuestionService questionService;
+    QuestionService questionService;
 
     @GetMapping("/")
     public String list(Model model) {

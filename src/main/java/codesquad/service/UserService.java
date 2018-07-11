@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import java.util.Optional;
 
 @Component
-public class UserService implements IUserService{
+public class UserService{
 
     @Autowired
     private UserRepository userRepository;
@@ -26,10 +26,14 @@ public class UserService implements IUserService{
 
     public User getUserByUserId(String userId){
         checkUserId(userId);
-        Optional<User> targetUser = userRepository.findByUserId(userId);
-        if(!targetUser.isPresent())
-            throw new CustomException(CustomErrorMessage.NOT_AUTHORIZED);
-        return targetUser.get();
+        return userRepository.findByUserId(userId)
+                .orElseThrow( () -> new CustomException(CustomErrorMessage.NOT_VALID_PATH));
+    }
+    public User getUserByUserIdAndPassword(String userId, String password){
+        checkUserId(userId);
+        return userRepository.findByUserId(userId)
+                .filter(u -> u.matchPassword(password))
+                .orElseThrow( () -> new CustomException(CustomErrorMessage.NOT_VALID_PATH));
     }
 
     public User convertObjectToUser(Object targetUser){
