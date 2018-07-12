@@ -1,6 +1,7 @@
 package codesquad.web;
 
 import codesquad.domain.*;
+import codesquad.repository.AnswerRepository;
 import codesquad.service.QuestionService;
 import codesquad.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,6 +47,7 @@ public class QnaController {
     @GetMapping("/{id}")
     public String view(@PathVariable long id, Model model) {
         model.addAttribute("question", questionService.getQuestionById(id));
+//        model.addAttribute("numAnswer", numAnswer);
         return "/qna/show";
     }
 
@@ -74,7 +76,6 @@ public class QnaController {
     public String createAnswer(@PathVariable long questionId, String contents, HttpSession session) {
         Question question = questionService.getQuestionById(questionId);
         Answer answer = new Answer(SessionUtil.getSessionedUser(session), contents);
-
         question.addAnswer(answer);
         questionService.updateQuestion(questionId, question);
         return "redirect:/questions/{questionId}";
@@ -83,9 +84,7 @@ public class QnaController {
     @DeleteMapping("/{questionId}/answers/{answerId}")
     public String deleteAnswer(@PathVariable long questionId, @PathVariable long answerId, HttpSession session) {
         User sessionedUser = SessionUtil.getSessionedUser(session);
-        Question question = questionService.getQuestionById(questionId);
-        question.deleteAnswer(answerId);
-        questionService.updateQuestion(sessionedUser.getId(), question);
+        questionService.deleteAnswer(answerId, sessionedUser);
         return "redirect:/questions/{questionId}";
     }
 }

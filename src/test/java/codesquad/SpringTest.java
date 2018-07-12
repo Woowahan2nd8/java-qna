@@ -1,32 +1,39 @@
 package codesquad;
 
+import codesquad.domain.Answer;
 import codesquad.domain.Question;
 import codesquad.domain.User;
 import codesquad.repository.QuestionRepository;
 import codesquad.repository.UserRepository;
+import codesquad.service.QuestionService;
 import codesquad.service.UserService;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.test.context.junit4.SpringRunner;
 
+import java.util.List;
+
 import static org.assertj.core.api.Java6Assertions.assertThat;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 
 //@RunWith(QnaApplication)
-//@DataJpaTest
+@DataJpaTest
 @RunWith(SpringRunner.class)
 //@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
-@DataJpaTest
+//@DataJpaTest
 public class SpringTest {
     @Autowired
     QuestionRepository questionRepository;
     @Autowired
     UserRepository userRepository;
+
 
     @Test
     public void testTime(){
@@ -74,5 +81,20 @@ public class SpringTest {
         fromConstructor.setId((long)12);
         assertTrue(fromSession.equals(fromConstructor));
         assertEquals(fromSession, fromConstructor);
+    }
+    @Test
+    public void testSize(){
+        questionRepository.findById(Long.valueOf(1)).get().getAnswers().size();
+    }
+    @Test
+    public void testLazy(){
+        assertNotNull( questionRepository.findById(Long.valueOf(1)).get() ) ;
+    }
+    @Test
+    public void testNQuery(){
+        List<Answer> answerList = questionRepository.findById(Long.valueOf(1)).get().getAnswers();
+        assertThat(answerList).isNotNull().hasSize(3);
+        answerList.stream()
+        .filter(x -> x.isMatchedId(Long.valueOf(2))).findFirst();
     }
 }

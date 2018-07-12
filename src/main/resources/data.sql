@@ -3,6 +3,28 @@ INSERT INTO USER (id, user_id, password, name, email) VALUES (null, 'bb', 'test'
 insert
     into
         question
-        (id, contents, title, write_time, writer_id)
+        (id, contents, title, write_time, writer_id, deleted)
     values
-        (null, 'testContents', 'test', '2018-07-11 18:55', 1);
+        (null, 'testContents', 'test', '2018-07-11 18:55', 1, false);
+
+
+insert
+    into
+        answer
+        (id, contents, question_id, write_time, writer_id, deleted)
+    values
+        (null, 'contents', 1, '2018-07-12 18:55', 1, false);
+
+insert
+    into
+        answer
+        (id, contents, question_id, write_time, writer_id, deleted)
+    values
+        (null, 'contents2', 1, '2018-07-12 19:55', 1, false);
+
+insert
+    into
+        answer
+        (id, contents, question_id, write_time, writer_id, deleted)
+    values
+        (null, 'contents3', 1, '2018-07-12 20:55', 2, false);

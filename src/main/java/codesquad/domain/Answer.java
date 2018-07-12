@@ -1,5 +1,8 @@
 package codesquad.domain;
 
+import codesquad.service.CustomErrorMessage;
+import codesquad.service.CustomException;
+
 import javax.persistence.*;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
@@ -25,6 +28,9 @@ public class Answer {
     @ManyToOne
     @JoinColumn(foreignKey = @ForeignKey(name = "fk_answer_to_question"))
     private Question question;
+
+    @Column(nullable = false)
+    private boolean deleted;
 
     public Answer(User writer, String contents) {
         this.writer = writer;
@@ -99,5 +105,17 @@ public class Answer {
 
     public boolean isMatchedId(long answerId){
         return this.id == answerId;
+    }
+    public void delete(User sessionedUser){
+        if(deleted)
+            throw new CustomException(CustomErrorMessage.INCORRECT_ACCESS);
+        if(!validateWriter(sessionedUser)){
+            throw new CustomException(CustomErrorMessage.NOT_AUTHORIZED);
+        }
+        this.deleted = true;
+
+    }
+    public boolean validateWriter(User user){
+        return writer.equals(user);
     }
 }

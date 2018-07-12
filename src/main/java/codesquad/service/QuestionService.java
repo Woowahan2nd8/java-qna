@@ -1,6 +1,8 @@
 package codesquad.service;
 
+import codesquad.domain.Answer;
 import codesquad.domain.Question;
+import codesquad.repository.AnswerRepository;
 import codesquad.repository.QuestionRepository;
 import codesquad.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +15,9 @@ import java.util.Optional;
 public class QuestionService{
     @Autowired
     QuestionRepository questionRepository;
+
+    @Autowired
+    AnswerRepository answerRepository;
 
     public void addQuestion(String title, String contents, User writer) {
         Question newQuestion = new Question(writer, title, contents);
@@ -52,5 +57,12 @@ public class QuestionService{
 
     public Iterable<Question> getQuestionList(){
         return questionRepository.findAll();
+    }
+
+    public void deleteAnswer(long answerId, User sessionedUser){
+        Answer forDeleteAnswer = answerRepository.findById(answerId)
+                .orElseThrow(() -> new CustomException(CustomErrorMessage.INCORRECT_ACCESS));
+        forDeleteAnswer.delete(sessionedUser);
+        answerRepository.save(forDeleteAnswer);
     }
 }

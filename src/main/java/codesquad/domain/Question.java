@@ -2,6 +2,7 @@ package codesquad.domain;
 
 import codesquad.service.CustomErrorMessage;
 import codesquad.service.CustomException;
+import org.hibernate.annotations.Where;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -31,7 +32,12 @@ public class Question {
 
     @OneToMany(mappedBy="question", cascade = CascadeType.MERGE)
     @PrimaryKeyJoinColumn
+    @Where(clause = "deleted = false")
+    @OrderBy("id ASC")
     private List<Answer> answers;
+
+    @Column(nullable = false)
+    private boolean deleted;
 
 
     public Question() {
@@ -90,6 +96,10 @@ public class Question {
         this.answers = answers;
     }
 
+    public int getAnswerCount(){
+        return this.answers.size();
+    }
+
     @Override
     public String toString() {
         return "Question{" +
@@ -130,14 +140,15 @@ public class Question {
         answer.setQuestion(this);
     }
 
-    public void deleteAnswer(long answerId){
+//    public void deleteAnswer(long answerId){
+////        Answer answer = answers.stream().filter(a -> a.isMatchedId(answerId)).findFirst().get();
+////        //answer.setWriter(null);
+////        answer.setQuestion(null);
+////        answers.removeIf(a -> a.isMatchedId(answerId));
+////    }
 
-
-        Answer answer = answers.stream().filter(a -> a.isMatchedId(answerId)).findFirst().get();
-        //answer.setWriter(null);
-        answer.setQuestion(null);
-        answers.removeIf(a -> a.isMatchedId(answerId));
-
+    public boolean isDeleted() {
+        return deleted;
     }
 
 }
