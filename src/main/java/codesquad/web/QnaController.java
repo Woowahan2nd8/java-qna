@@ -54,21 +54,21 @@ public class QnaController {
     @GetMapping("/{id}/form")
     public String viewForUpdate(@PathVariable long id, Model model, HttpSession session) {
         User sessionedUser = SessionUtil.getSessionedUser(session);
-        model.addAttribute("question", questionService.getModifiableQuestion(sessionedUser.getId(), id));
+        model.addAttribute("question", questionService.getModifiableQuestion(sessionedUser, id));
         return "/qna/updateForm";
     }
 
     @PutMapping("/{id}")
     public String updateQuestion(@PathVariable long id, String contents, String title, HttpSession session) {
         User sessionedUser = SessionUtil.getSessionedUser(session);
-        questionService.updateQuestion(sessionedUser.getId(), new Question(sessionedUser, title, contents));
+        questionService.updateQuestion(id, new Question(sessionedUser, title, contents));
         return "redirect:/questions/{id}";
     }
 
     @DeleteMapping("/{id}")
     public String deleteQuestion(@PathVariable long id,HttpSession session) {
         User sessionedUser = SessionUtil.getSessionedUser(session);
-        questionService.deleteQuestionById(sessionedUser.getId(), id);
+        questionService.deleteQuestionById(sessionedUser, id);
         return "redirect:/";
     }
     @Transactional

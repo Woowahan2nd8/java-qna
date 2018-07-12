@@ -7,6 +7,7 @@ import codesquad.repository.QuestionRepository;
 import codesquad.domain.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -43,16 +44,21 @@ public class QuestionService{
                 .orElseThrow( () -> new CustomException(CustomErrorMessage.NOT_VALID_PATH));
     }
 
-    public Question getModifiableQuestion(long userId, long questionId){ //1. Question /
+    public Question getModifiableQuestion(User sessionedUser, long questionId){ //1. Question /
         Question targetQuestion = getQuestionById(questionId);
-        if(targetQuestion.unEqualWriter(userId)){
+        if(targetQuestion.unEqualWriter(sessionedUser)){
             throw new CustomException(CustomErrorMessage.NOT_AUTHORIZED);
         }
         return targetQuestion;
     }
 
-    public void deleteQuestionById(long userId,long questionId){
-        questionRepository.delete(getModifiableQuestion(userId, questionId));
+    @Transactional
+    public void deleteQuestionById(User user,long questionId){
+        Question targetQuestion = getQuestionById(questionId);
+        targetQuestion.deleteQuestion(user);
+        questionRepository.save(targetQuestion);
+        System.out.println(targetQuestion.getAnswers());
+        answerRepository.saveAll(targetQuestion.getAnswers());
     }
 
     public Iterable<Question> getQuestionList(){

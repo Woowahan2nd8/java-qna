@@ -10,6 +10,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @Entity
+@Where(clause = "deleted = false")
 public class Question {
     private static final String DATE_FORMAT = "yyyy-MM-dd HH:mm";
     @Id
@@ -89,7 +90,7 @@ public class Question {
     }
 
     public List<Answer> getAnswers() {
-        return answers;
+        return Collections.unmodifiableList(answers);
     }
 
     public void setAnswers(List<Answer> answers) {
@@ -120,8 +121,8 @@ public class Question {
         this.answers = question.answers;
     }
 
-    public boolean unEqualWriter(long id) {
-        return !writer.getId().equals(id);
+    public boolean unEqualWriter(User user) {
+        return !writer.equals(user);
     }
 
     private String calculateWriteTime() {
@@ -149,6 +150,22 @@ public class Question {
 
     public boolean isDeleted() {
         return deleted;
+    }
+
+    public boolean deletable(){
+        return (answers.size() == 0) || checkAnswerWriter();
+    }
+
+    private boolean checkAnswerWriter(){
+        return answers.stream().allMatch(answer -> answer.validateWriter(writer));
+    }
+
+    public void deleteQuestion(User user){
+        if(unEqualWriter(user) || !deletable())
+            throw new CustomException(CustomErrorMessage.NOT_AUTHORIZED);
+        answers.stream().filter(answer -> !(answer.isDeleted()))
+                .forEach(restAnswer -> restAnswer.delete(writer));
+        deleted = true;
     }
 
 }

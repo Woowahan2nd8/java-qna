@@ -100,6 +100,7 @@ public class Answer {
                 ", writeTime='" + writeTime + '\'' +
                 ", writer=" + writer +
                 ", contents='" + contents + '\'' +
+                ", deleted=" + deleted +
                 '}';
     }
 
@@ -113,8 +114,12 @@ public class Answer {
             throw new CustomException(CustomErrorMessage.NOT_AUTHORIZED);
         }
         this.deleted = true;
-
     }
+
+    public boolean isDeleted() {
+        return deleted;
+    }
+
     public boolean validateWriter(User user){
         return writer.equals(user);
     }

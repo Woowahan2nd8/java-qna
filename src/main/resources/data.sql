@@ -21,10 +21,3 @@ insert
         (id, contents, question_id, write_time, writer_id, deleted)
     values
         (null, 'contents2', 1, '2018-07-12 19:55', 1, false);
-
-insert
-    into
-        answer
-        (id, contents, question_id, write_time, writer_id, deleted)
-    values
-        (null, 'contents3', 1, '2018-07-12 20:55', 2, false);
